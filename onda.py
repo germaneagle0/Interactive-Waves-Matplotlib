@@ -269,7 +269,7 @@ def on_press(event):
     
     elif event.key == 'y':
         INTENSITY_CLICK += 10000
-        intensityText = removeIntText()
+        intensityText = removeIntText(intensityText)
     elif event.key == 'u':
         if INTENSITY_CLICK > LIMIT_VIEW_INTENSITY + 10000:
             INTENSITY_CLICK -= 10000
@@ -292,7 +292,7 @@ def writeINTENSITY():
     return plt.text(*intTextPos,f'Intensidade de Click: {INTENSITY_CLICK}', size=10, ha="left", va="center")
 def removeIntText(text):
     Artist.remove(text)
-    return writeDIMENSION()
+    return writeINTENSITY()
 
 def writeTutorial():
     return plt.text(*intTutorialPos, 'Use "w" para aumentar FPS e "e" para diminuir FPS, use "y" para aumentar intensidade do click\ne "u" para reduzir ela. Botão esquerdo do mouse faz uma onda, botão do meio remove os\nobstaculos e botão direito clica duas vezes para fazer obstaculos. Para mudar dimensão, \nsó mudar manualmente no inicio do código num editor de texto', size=10, ha="left", va="center", color='green')
