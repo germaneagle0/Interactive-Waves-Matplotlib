@@ -3,7 +3,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.artist import Artist
+import struct
 import sys
+
+def struct_isqrt(number):
+    threehalfs = 1.5
+    x2 = number * 0.5
+    y = number
+    
+    packed_y = struct.pack('f', y)       
+    i = struct.unpack('i', packed_y)[0]  # treat float's bytes as int 
+    i = 0x5f3759df - (i >> 1)            # arithmetic with magic number
+    packed_i = struct.pack('i', i)
+    y = struct.unpack('f', packed_i)[0]  # treat int's bytes as float
+    
+    y = y * (threehalfs - (x2 * y * y))  # Newton's method
+    return y
+
 
 
 ## PODE MUDAR, VAI TESTANDO AS DIFERENTES CONSTANTES
@@ -44,6 +60,8 @@ listRotate = [[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1]]
 def addIntensity(X,Y, grid, direction, I):
     return addTwoIntensities(grid[X + direction[0],Y + direction[1]], createVector(I, direction)) # Creating the vector with direction is an imprecision
 
+
+
 def addTwoIntensities(i1, i2):
     I_a = int(i1['intensity'])
     k_a = normalizeDirection(i1['direction'])
@@ -51,19 +69,19 @@ def addTwoIntensities(i1, i2):
     k_d = normalizeDirection(i2['direction'])
         
     newVector = (I_a*k_a[0] + I_d*k_d[0], I_a*k_a[1] + I_d*k_d[1])
-    newIntensity = np.sqrt(newVector[0]**2 + newVector[1]**2)
-    if newIntensity == 0:
+    if (newVector[0] == 0 and newVector[1] == 0):
         return createVector()
-    newDirection = (newVector[0]/newIntensity, newVector[1]/newIntensity)
-    return createVector(newIntensity, newDirection)
+    invNewIntensity = struct_isqrt(newVector[0]**2 + newVector[1]**2)
+    newDirection = (newVector[0]*invNewIntensity, newVector[1]*invNewIntensity)
+    return createVector(1/invNewIntensity, newDirection)
 
 def normalizeDirection(direction):
     dx = direction[0]
     dy = direction[1]
-    normalize = np.sqrt(dx**2 + dy**2)
-    if normalize != 0:
-        dx = dx/normalize
-        dy = dy/normalize
+    normalize = struct_isqrt(dx**2 + dy**2)
+    if (dx!= 0 or dy!= 0) :
+        dx = dx*normalize
+        dy = dy*normalize
     return [dx, dy]
 
 def mainDirection(direction):
